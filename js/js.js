@@ -4,6 +4,7 @@ var coordinates;
 var polygon2;
 var save_poliline_data;
 var flagok = 1;
+var polygoni = [];
 //const menu = document.querySelector('.container');
 //const open = document.querySelector('.menu__open');
 //const close = document.querySelector('.menu__close');
@@ -15,12 +16,21 @@ var flagok = 1;
 
 
 
-
+var s;
+var json_poly = [];
 function Save() {
-    polygon1.disableEdit();
-    var s = polygon1.toGeoJSON().geometry.coordinates[0];
-    s.shift();
-    save_poliline_data = JSON.stringify(s);
+    //polygon1.disableEdit();
+    for (let i of polygoni) {
+        i.disableEdit();
+        s = i.toGeoJSON().geometry.coordinates[0];
+        s.shift();
+        json_poly.push(s);
+    }
+    //s = polygon1.toGeoJSON().geometry.coordinates[0];
+   /* s.shift();*/
+    //save_poliline_data = JSON.stringify(s);
+    save_poliline_data = JSON.stringify(json_poly);
+
     poliline_data = s;
     console.log(save_poliline_data);
     console.log(typeof (save_poliline_data));
@@ -29,16 +39,24 @@ function Save() {
 }
 
 function Edit() {
-    polygon1.enableEdit();
+    //console.log(polygoni);
+    for (let i of polygoni) {
+        console.log(i);
+        i.enableEdit();
+    }
+    //polygon1.enableEdit();
     flagok = 0;
 }
 function Edit2() {
-    polygon1.disableEdit();
+    for (let i of polygoni) {
+        i.disableEdit();
+    }
+    //polygon1.disableEdit();
     flagok = 1;
 }
 function Create() {
 
-    document.getElementById('asd').disabled = true;
+    //document.getElementById('asd').disabled = true;
     document.getElementById('edite').disabled = false;
     polygon1 = L.polygon([
         [bounds[0][0], bounds[0][1]],
@@ -47,6 +65,10 @@ function Create() {
         //[bounds[0][0], bounds[1][1]]
     ]
         , { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
+    polygoni.push(polygon1);
+    if (flagok == 0) {
+        polygon1.enableEdit();
+    }
    
 }
 
@@ -74,70 +96,45 @@ function Show_floor(){
 function Edit_Show() {
     polygon1.enableEdit();
 }
-function Show_res(poldata) {
+function Show_res(poldata, kol) {
+
+    if (kol == 0) {
+        if (polygoni.length != 0) {
+                for (let i = 0; i < polygoni.length; i++) {
+                    polygoni[i].remove();
+                    console.log("removing");
+                }
+        }
+        polygoni = [];
+    }
     
-    document.getElementById('asd').disabled = true;
+    //polygoni = [];
+    console.log('SHOW RESS', kol);
+    document.getElementById('asd').disabled = false;
     document.getElementById('edite').disabled = false;
+    var poldata1 = JSON.parse(poldata);
+    coordinates = poldata1;
+    console.log(coordinates);
     if (flagok == 0) {
-        if (polygon1 == undefined) {
-            console.log("FFFFFFFFFF");
-            polygon1 = L.polygon([
-                [bounds[0][0], bounds[0][1]],
-                [bounds[1][0], bounds[0][1]],
-                [bounds[1][0], bounds[1][1]],
-
-            ]
-                , { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
-            polygon1.remove();
-        }
-        else {
-            polygon1.remove();
-        }
-        var poldata1 = JSON.parse(poldata);
-        coordinates = poldata1;
-
-        for (var key in coordinates) {
-            if (coordinates.hasOwnProperty(key)) {
-                var t = coordinates[key][0];
-                coordinates[key][0] = coordinates[key][1];
-                coordinates[key][1] = t;
-            }
-        }
-
-        polygon1 = L.polygon(coordinates, { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
-        polygon1.enableEdit()
+        console.log(1);
+        let coord = JSON.parse(coordinates)
+        console.log("coord ", coord);
+        polygon1 = L.polygon(coord, { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
+        polygon1.disableEdit();
+        polygoni.push(coord);
     }
     else {
-        if (polygon1 == undefined) {
-            console.log("FFFFFFFFFF");
-            polygon1 = L.polygon([
-                [bounds[0][0], bounds[0][1]],
-                [bounds[1][0], bounds[0][1]],
-                [bounds[1][0], bounds[1][1]],
-
-            ]
-                , { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
-            polygon1.remove();
-        }
-        else {
-            polygon1.remove();
-        }
-        var poldata1 = JSON.parse(poldata);
-        coordinates = poldata1;
-
-        for (var key in coordinates) {
-            if (coordinates.hasOwnProperty(key)) {
-                var t = coordinates[key][0];
-                coordinates[key][0] = coordinates[key][1];
-                coordinates[key][1] = t;
-            }
-        }
-
-        polygon1 = L.polygon(coordinates, { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
-        polygon1.disableEdit()
- 
+        console.log(2);
+        let coord = JSON.parse(coordinates)
+        console.log("coord ",coord);
+        polygon1 = L.polygon(coord, { fillOpacity: 0.51, color: '#FFF000', weight: 2 }).addTo(lit_map);
+        polygon1.disableEdit();
+        polygoni.push(polygon1);
+        //for (let i = 0; i < coord.length; i++) {
+       
+        //}
     }
-   
-    
+  
+    console.log(polygoni);
   
 }
